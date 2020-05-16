@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"time"
 )
 
@@ -10,22 +11,98 @@ const iloscKartWTalii = 52
 
 var koloryKart []string = []string{"pik", "kier", "trefl", "karo"}
 var figuryKart []string = []string{"as", "król", "dama", "walet", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
+var ukladyKart []string = []string{"pokerKrolewski", "poker", "kareta", "ful", "kolor", "strit", "trojka", "dwiePary", "para", "wysokaKarta"}
+
+func znajdzIndexFigury(figura string) int {
+	for i, fgra := range figuryKart {
+		if figura == fgra {
+			return i
+		}
+	}
+
+	return 0
+}
+
+type kartyGracza []*karta
+
+func zlaczKartyGracza(reka [2]*karta, kartyWspolne [5]*karta) *kartyGracza {
+	var wszystkieKarty kartyGracza = make(kartyGracza, 0)
+	for _, krt := range kartyWspolne {
+		wszystkieKarty = append(wszystkieKarty, krt)
+	}
+	for _, krt := range reka {
+		wszystkieKarty = append(wszystkieKarty, krt)
+	}
+
+	fmt.Println(wszystkieKarty)
+	wszystkieKarty.sortujWgFigury()
+	fmt.Println(wszystkieKarty)
+
+	return &wszystkieKarty
+}
+
+func (kg *kartyGracza) saWJednymKolorze() bool {
+	var pierwszyKolor string
+
+	for i, krt := range *kg {
+		if i == 0 {
+			pierwszyKolor = krt.kolor
+			continue
+		}
+
+		if krt.kolor != pierwszyKolor {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (kg *kartyGracza) sortujWgFigury() {
+	sort.SliceStable(*kg, func(i, j int) bool {
+		return znajdzIndexFigury((*kg)[i].figura) > znajdzIndexFigury((*kg)[j].figura)
+	})
+}
+
+func (kg kartyGracza) String() string {
+	result := ""
+
+	for _, krt := range kg {
+		result += fmt.Sprintf("%s ", krt)
+	}
+
+	return result
+}
 
 type gracz struct {
 	reka [2]*karta
 }
 
+func (g *gracz) maPokeraKrolewskiego(wszystkieKarty *kartyGracza) bool {
+	if !wszystkieKarty.saWJednymKolorze() {
+		return false
+	}
+
+	return true
+}
+
 type stol struct {
-	gracze []gracz
-	talia  *talia
+	gracze         []*gracz
+	talia          *talia
+	licznikUkladow map[string]int
 }
 
 func nowyStol(iloscGraczy int) *stol {
 	nowaTalia := nowaTalia()
-	gracze := make([]gracz, 0)
+	gracze := make([]*gracz, 0)
+	licznikUkladow := make(map[string]int)
 
 	for i := 1; i <= iloscGraczy; i++ {
-		gracze = append(gracze, gracz{})
+		gracze = append(gracze, &gracz{})
+	}
+
+	for _, uklad := range ukladyKart {
+		licznikUkladow[uklad] = 0
 	}
 
 	nowyStol := stol{
@@ -45,6 +122,8 @@ func (s *stol) rozdaj() {
 	rozdanie.flop()
 	rozdanie.turn()
 	rozdanie.river()
+
+	rozdanie.sprawdzUklady()
 }
 
 func (s *stol) rozdajNrazy(iloscRozdan int) {
@@ -72,6 +151,10 @@ func nowaTalia() *talia {
 	}
 
 	return &nowaTalia
+}
+
+func (t *talia) odlozKarte(krt *karta) {
+	t.karty = append(t.karty, krt)
 }
 
 func (t *talia) pobierzOstatniaKarte() *karta {
@@ -132,6 +215,19 @@ func (r *rozdanie) turn() {
 
 func (r *rozdanie) river() {
 	r.kartyWspolne[4] = r.stol.talia.pobierzOstatniaKarte()
+}
+
+func (r *rozdanie) oddajKarty() {
+
+}
+
+func (r *rozdanie) sprawdzUklady() {
+	for _, gracz := range r.stol.gracze {
+		wszystkieKarty := zlaczKartyGracza(gracz.reka, r.kartyWspolne)
+		if gracz.maPokeraKrolewskiego(wszystkieKarty) {
+
+		}
+	}
 }
 
 func main() {
