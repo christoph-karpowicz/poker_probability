@@ -12,26 +12,56 @@ var koloryKart []string = []string{"pik", "kier", "trefl", "karo"}
 var figuryKart []string = []string{"as", "król", "dama", "walet", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
 
 type gracz struct {
-	reka []*karta
+	reka [2]*karta
 }
 
 type stol struct {
 	gracze []gracz
-	talia  talia
+	talia  *talia
+}
+
+func nowyStol(iloscGraczy int) *stol {
+	nowaTalia := nowaTalia()
+	gracze := make([]gracz, 0)
+
+	for i := 1; i <= iloscGraczy; i++ {
+		gracze = append(gracze, gracz{})
+	}
+
+	nowyStol := stol{
+		talia:  nowaTalia,
+		gracze: gracze,
+	}
+
+	return &nowyStol
+}
+
+func (s *stol) rozdaj() {
+	s.talia.tasuj()
+	s.talia.przeloz()
+
+	rozdanie := noweRozdanie(s)
+	rozdanie.rece()
+}
+
+func (s *stol) rozdajNrazy(iloscRozdan int) {
+	for i := 0; i < iloscRozdan; i++ {
+		s.rozdaj()
+	}
 }
 
 type talia struct {
-	karty []karta
+	karty []*karta
 }
 
 func nowaTalia() *talia {
 	nowaTalia := talia{
-		karty: make([]karta, 0),
+		karty: make([]*karta, 0),
 	}
 
 	for _, kolor := range koloryKart {
 		for _, figura := range figuryKart {
-			nowaTalia.karty = append(nowaTalia.karty, karta{
+			nowaTalia.karty = append(nowaTalia.karty, &karta{
 				kolor:  kolor,
 				figura: figura,
 			})
@@ -41,9 +71,11 @@ func nowaTalia() *talia {
 	return &nowaTalia
 }
 
-func (t *talia) tasuj() {
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(t.karty), func(i, j int) { t.karty[i], t.karty[j] = t.karty[j], t.karty[i] })
+func (t *talia) pobierzOstatniaKarte() *karta {
+	karta := t.karty[len(t.karty)-1]
+	t.karty = t.karty[:len(t.karty)-1]
+
+	return karta
 }
 
 func (t *talia) przeloz() {
@@ -55,7 +87,9 @@ func (t *talia) przeloz() {
 	t.karty = append(czesc2, czesc1...)
 }
 
-func (t *talia) rozdaj(iloscGraczy int) {
+func (t *talia) tasuj() {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(t.karty), func(i, j int) { t.karty[i], t.karty[j] = t.karty[j], t.karty[i] })
 }
 
 type karta struct {
@@ -63,11 +97,40 @@ type karta struct {
 	figura string
 }
 
+type rozdanie struct {
+	stol         *stol
+	kartyWspolne [5]*karta
+}
+
+func noweRozdanie(stol *stol) *rozdanie {
+	noweRozdanie := rozdanie{
+		stol: stol,
+	}
+
+	return &noweRozdanie
+}
+
+func (r *rozdanie) rece() {
+	for _, gracz := range r.stol.gracze {
+		gracz.reka[0] = r.stol.talia.pobierzOstatniaKarte()
+		gracz.reka[1] = r.stol.talia.pobierzOstatniaKarte()
+	}
+}
+
+func (r *rozdanie) flop() {
+}
+
+func (r *rozdanie) turn() {
+}
+
+func (r *rozdanie) river() {
+}
+
 func main() {
 	fmt.Println("Generowanie losowych rozdań w pokera i empiryczne wyznaczenie prawdopodobieństwa wszystkich konfiguracji.")
 
-	talia := nowaTalia()
-	talia.tasuj()
-	talia.przeloz()
-	fmt.Println(talia.karty)
+	stol10 := nowyStol(10)
+	fmt.Println(len(stol10.talia.karty))
+	stol10.rozdajNrazy(1)
+	fmt.Println(len(stol10.talia.karty))
 }
