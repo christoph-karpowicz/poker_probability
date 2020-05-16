@@ -42,6 +42,9 @@ func (s *stol) rozdaj() {
 
 	rozdanie := noweRozdanie(s)
 	rozdanie.rece()
+	rozdanie.flop()
+	rozdanie.turn()
+	rozdanie.river()
 }
 
 func (s *stol) rozdajNrazy(iloscRozdan int) {
@@ -118,12 +121,17 @@ func (r *rozdanie) rece() {
 }
 
 func (r *rozdanie) flop() {
+	for i := 0; i < 3; i++ {
+		r.kartyWspolne[i] = r.stol.talia.pobierzOstatniaKarte()
+	}
 }
 
 func (r *rozdanie) turn() {
+	r.kartyWspolne[3] = r.stol.talia.pobierzOstatniaKarte()
 }
 
 func (r *rozdanie) river() {
+	r.kartyWspolne[4] = r.stol.talia.pobierzOstatniaKarte()
 }
 
 func main() {
