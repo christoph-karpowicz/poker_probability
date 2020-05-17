@@ -51,7 +51,7 @@ func (r *rozdanie) sprawdzUklady() {
 	// }
 
 	for _, gracz := range r.stol.gracze {
-		// wszystkieKarty := zlaczKartyGracza(gracz.reka, r.kartyWspolne)
-		gracz.sprawdzUklady(r.stol, kombinacje3kart, kombinacje4kart)
+		najwyzszyUkladNazwa, _ := gracz.sprawdzUklady(r.stol, kombinacje3kart, kombinacje4kart)
+		r.stol.licznikUkladow[najwyzszyUkladNazwa]++
 	}
 }

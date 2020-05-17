@@ -57,12 +57,34 @@ func (kg kartyGracza) String() string {
 	return result
 }
 
-type gracz struct {
-	reka [2]*karta
+func (kg *kartyGracza) zliczWgFigury() map[string]int {
+	figuryGracza := make(map[string]int)
+	for _, figuraKart := range figuryKart {
+		figuryGracza[figuraKart] = 0
+	}
+
+	for _, krt := range *kg {
+		figuryGracza[krt.figura]++
+	}
+
+	return figuryGracza
 }
 
-func (g *gracz) maPokeraKrolewskiego(karty *kartyGracza) bool {
-	strit := g.maStrita(karty)
+func (kg *kartyGracza) zliczWgKoloru() map[string]int {
+	koloryGracza := make(map[string]int)
+	for _, kolorKart := range koloryKart {
+		koloryGracza[kolorKart] = 0
+	}
+
+	for _, krt := range *kg {
+		koloryGracza[krt.kolor]++
+	}
+
+	return koloryGracza
+}
+
+func (kg *kartyGracza) maPokeraKrolewskiego() bool {
+	strit := kg.maStrita()
 	if strit == nil {
 		return false
 	}
@@ -78,8 +100,8 @@ func (g *gracz) maPokeraKrolewskiego(karty *kartyGracza) bool {
 	return true
 }
 
-func (g *gracz) maPokera(karty *kartyGracza) bool {
-	strit := g.maStrita(karty)
+func (kg *kartyGracza) maPokera() bool {
+	strit := kg.maStrita()
 	if strit == nil {
 		return false
 	}
@@ -91,17 +113,61 @@ func (g *gracz) maPokera(karty *kartyGracza) bool {
 	return true
 }
 
-func (g *gracz) maKarete(karty *kartyGracza) bool {
+func (kg *kartyGracza) maKarete() bool {
+	figury := kg.zliczWgFigury()
 
-	return true
+	for _, iloscFigur := range figury {
+		if iloscFigur == 4 {
+			return true
+		}
+	}
+
+	return false
 }
 
-func (g *gracz) maStrita(karty *kartyGracza) *uklad {
+func (kg *kartyGracza) maFula() bool {
+	figury := kg.zliczWgFigury()
+	trzyTakieSame := ""
+
+	for figura, iloscFigur := range figury {
+		if iloscFigur == 3 {
+			trzyTakieSame = figura
+		}
+	}
+
+	if trzyTakieSame == "" {
+		return false
+	}
+
+	for figura, iloscFigur := range figury {
+		if figura != trzyTakieSame {
+			if iloscFigur >= 2 {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (kg *kartyGracza) maKolor() bool {
+	kolory := kg.zliczWgKoloru()
+
+	for _, iloscKolorow := range kolory {
+		if iloscKolorow == 5 {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (kg *kartyGracza) maStrita() *uklad {
 	var strit *uklad = &uklad{}
 	var licznik int
 	var indexOstatniejKarty int
 
-	for i, krt := range *karty {
+	for i, krt := range *kg {
 		var indexBiezacejKarty int = znajdzIndexFigury(krt.figura)
 		// fmt.Println(indexOstatniejKarty)
 		// fmt.Println(indexBiezacejKarty)
@@ -125,8 +191,54 @@ func (g *gracz) maStrita(karty *kartyGracza) *uklad {
 	return nil
 }
 
-func (g *gracz) sprawdzUklady(stol *stol, kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) *uklad {
-	ukl := &uklad{}
+func (kg *kartyGracza) maTrojke() bool {
+	figury := kg.zliczWgFigury()
+
+	for _, iloscFigur := range figury {
+		if iloscFigur == 3 {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (kg *kartyGracza) maDwiePary() bool {
+	figury := kg.zliczWgFigury()
+	dwieTakieSame := 0
+
+	for _, iloscFigur := range figury {
+		if iloscFigur == 2 {
+			dwieTakieSame++
+		}
+	}
+
+	if dwieTakieSame >= 2 {
+		return true
+	}
+	return false
+}
+
+func (kg *kartyGracza) maPare() bool {
+	figury := kg.zliczWgFigury()
+
+	for _, iloscFigur := range figury {
+		if iloscFigur == 2 {
+			return true
+		}
+	}
+
+	return false
+}
+
+type gracz struct {
+	reka [2]*karta
+}
+
+func (g *gracz) sprawdzUklady(stol *stol, kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) (string, *uklad) {
+	var najwyzszyUkl *uklad
+	var najwyzszyUklNazwa string
+	znalezionoNajwyzszyUklad := false
 
 	ukladyGracza := make(map[string][]*uklad)
 	for _, ukladKart := range ukladyKart {
@@ -138,17 +250,100 @@ func (g *gracz) sprawdzUklady(stol *stol, kombinacje3kart [][]*karta, kombinacje
 		kartyZReka := noweKartyGraczaCalaReka(g.reka, komb3)
 		newUkl := uklad{}
 
-		if g.maPokeraKrolewskiego(kartyZReka) {
+		if kartyZReka.maPokeraKrolewskiego() {
 			newUkl = append(newUkl, (*kartyZReka)...)
 			ukladyGracza["pokerKrolewski"] = append(ukladyGracza["pokerKrolewski"], &newUkl)
-		} else if g.maPokera(kartyZReka) {
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "pokerKrolewski"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maPokera() {
 			newUkl = append(newUkl, (*kartyZReka)...)
 			ukladyGracza["poker"] = append(ukladyGracza["poker"], &newUkl)
-		} else if g.maStrita(kartyZReka) != nil {
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "poker"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maKarete() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["kareta"] = append(ukladyGracza["kareta"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "kareta"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maFula() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["ful"] = append(ukladyGracza["ful"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "ful"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maKolor() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["kolor"] = append(ukladyGracza["kolor"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "kolor"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maStrita() != nil {
 			newUkl = append(newUkl, (*kartyZReka)...)
 			ukladyGracza["strit"] = append(ukladyGracza["strit"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "strit"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maTrojke() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["trojka"] = append(ukladyGracza["trojka"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "trojka"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maDwiePary() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["dwiePary"] = append(ukladyGracza["dwiePary"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "dwiePary"
+				znalezionoNajwyzszyUklad = true
+			}
+
+		} else if kartyZReka.maPare() {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["para"] = append(ukladyGracza["para"], &newUkl)
+
+			if !znalezionoNajwyzszyUklad {
+				najwyzszyUkl = &newUkl
+				najwyzszyUklNazwa = "para"
+				znalezionoNajwyzszyUklad = true
+			}
+		} else {
+			najwyzszyUkl = &newUkl
+			najwyzszyUklNazwa = "wysokaKarta"
 		}
 	}
 
-	return ukl
+	return najwyzszyUklNazwa, najwyzszyUkl
 }

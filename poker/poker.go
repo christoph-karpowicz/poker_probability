@@ -1,7 +1,5 @@
 package poker
 
-import "fmt"
-
 const iloscKartWTalii = 52
 
 var koloryKart []string = []string{"pik", "kier", "trefl", "karo"}
@@ -31,7 +29,7 @@ func kombinacjeKart(iloscKartWKombinacji int, karty [5]*karta, index int, tmp []
 	if index == iloscKartWKombinacji {
 		tmpCpy := make([]*karta, len(tmp))
 		copy(tmpCpy, tmp)
-		fmt.Println(tmpCpy)
+		// fmt.Println(tmpCpy)
 		*result = append(*result, tmpCpy)
 		return
 	}
