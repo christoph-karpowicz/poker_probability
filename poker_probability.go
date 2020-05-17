@@ -23,28 +23,12 @@ func znajdzIndexFigury(figura string) int {
 	return 0
 }
 
-type kartyGracza []*karta
+type uklad []*karta
 
-func zlaczKartyGracza(reka [2]*karta, kartyWspolne [5]*karta) *kartyGracza {
-	var wszystkieKarty kartyGracza = make(kartyGracza, 0)
-	for _, krt := range kartyWspolne {
-		wszystkieKarty = append(wszystkieKarty, krt)
-	}
-	for _, krt := range reka {
-		wszystkieKarty = append(wszystkieKarty, krt)
-	}
-
-	fmt.Println(wszystkieKarty)
-	wszystkieKarty.sortujWgFigury()
-	fmt.Println(wszystkieKarty)
-
-	return &wszystkieKarty
-}
-
-func (kg *kartyGracza) saWJednymKolorze() bool {
+func (u *uklad) jestWJednymKolorze() bool {
 	var pierwszyKolor string
 
-	for i, krt := range *kg {
+	for i, krt := range *u {
 		if i == 0 {
 			pierwszyKolor = krt.kolor
 			continue
@@ -56,6 +40,24 @@ func (kg *kartyGracza) saWJednymKolorze() bool {
 	}
 
 	return true
+}
+
+type kartyGracza []*karta
+
+func zlaczKartyGracza(reka [2]*karta, kartyWspolne [5]*karta) *kartyGracza {
+	var wszystkieKarty kartyGracza = make(kartyGracza, 0)
+	for _, krt := range kartyWspolne {
+		wszystkieKarty = append(wszystkieKarty, krt)
+	}
+	for _, krt := range reka {
+		wszystkieKarty = append(wszystkieKarty, krt)
+	}
+
+	// fmt.Println(wszystkieKarty)
+	wszystkieKarty.sortujWgFigury()
+	// fmt.Println(wszystkieKarty)
+
+	return &wszystkieKarty
 }
 
 func (kg *kartyGracza) sortujWgFigury() {
@@ -79,11 +81,67 @@ type gracz struct {
 }
 
 func (g *gracz) maPokeraKrolewskiego(wszystkieKarty *kartyGracza) bool {
-	if !wszystkieKarty.saWJednymKolorze() {
+	strit := g.maStrita(wszystkieKarty)
+	if strit == nil {
+		return false
+	}
+
+	if !strit.jestWJednymKolorze() {
+		return false
+	}
+
+	if (*strit)[0].figura != "10" {
 		return false
 	}
 
 	return true
+}
+
+func (g *gracz) maPokera(wszystkieKarty *kartyGracza) bool {
+	strit := g.maStrita(wszystkieKarty)
+	if strit == nil {
+		return false
+	}
+
+	if !strit.jestWJednymKolorze() {
+		return false
+	}
+
+	return true
+}
+
+func (g *gracz) maKarete(wszystkieKarty *kartyGracza) bool {
+
+	return true
+}
+
+func (g *gracz) maStrita(wszystkieKarty *kartyGracza) *uklad {
+	var strit *uklad = &uklad{}
+	var licznik int
+	var indexOstatniejKarty int
+
+	for i, krt := range *wszystkieKarty {
+		var indexBiezacejKarty int = znajdzIndexFigury(krt.figura)
+		// fmt.Println(indexOstatniejKarty)
+		// fmt.Println(indexBiezacejKarty)
+
+		if i > 0 {
+			if indexBiezacejKarty == indexOstatniejKarty+1 {
+				(*strit)[licznik] = krt
+				(*strit)[licznik+1] = krt
+				licznik++
+			} else {
+				licznik = 0
+			}
+		}
+
+		indexOstatniejKarty = indexBiezacejKarty
+	}
+
+	if licznik >= 4 {
+		return strit
+	}
+	return nil
 }
 
 type stol struct {
@@ -106,8 +164,9 @@ func nowyStol(iloscGraczy int) *stol {
 	}
 
 	nowyStol := stol{
-		talia:  nowaTalia,
-		gracze: gracze,
+		talia:          nowaTalia,
+		gracze:         gracze,
+		licznikUkladow: licznikUkladow,
 	}
 
 	return &nowyStol
@@ -143,10 +202,7 @@ func nowaTalia() *talia {
 
 	for _, kolor := range koloryKart {
 		for _, figura := range figuryKart {
-			nowaTalia.karty = append(nowaTalia.karty, &karta{
-				kolor:  kolor,
-				figura: figura,
-			})
+			nowaTalia.karty = append(nowaTalia.karty, &karta{kolor, figura})
 		}
 	}
 
@@ -189,9 +245,7 @@ type rozdanie struct {
 }
 
 func noweRozdanie(stol *stol) *rozdanie {
-	noweRozdanie := rozdanie{
-		stol: stol,
-	}
+	noweRozdanie := rozdanie{stol: stol}
 
 	return &noweRozdanie
 }
@@ -224,8 +278,13 @@ func (r *rozdanie) oddajKarty() {
 func (r *rozdanie) sprawdzUklady() {
 	for _, gracz := range r.stol.gracze {
 		wszystkieKarty := zlaczKartyGracza(gracz.reka, r.kartyWspolne)
-		if gracz.maPokeraKrolewskiego(wszystkieKarty) {
 
+		if gracz.maPokeraKrolewskiego(wszystkieKarty) {
+			r.stol.licznikUkladow["pokerKrolewski"]++
+		} else if gracz.maPokera(wszystkieKarty) {
+			r.stol.licznikUkladow["poker"]++
+		} else if gracz.maStrita(wszystkieKarty) != nil {
+			r.stol.licznikUkladow["strit"]++
 		}
 	}
 }
@@ -234,7 +293,6 @@ func main() {
 	fmt.Println("Generowanie losowych rozdań w pokera i empiryczne wyznaczenie prawdopodobieństwa wszystkich konfiguracji.")
 
 	stol10 := nowyStol(10)
-	fmt.Println(len(stol10.talia.karty))
 	stol10.rozdajNrazy(1)
-	fmt.Println(len(stol10.talia.karty))
+	fmt.Println(stol10.licznikUkladow)
 }
