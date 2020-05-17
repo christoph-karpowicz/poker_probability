@@ -2,11 +2,14 @@ package poker
 
 type rozdanie struct {
 	stol         *stol
-	kartyWspolne [5]*karta
+	kartyWspolne []*karta
 }
 
 func noweRozdanie(stol *stol) *rozdanie {
-	noweRozdanie := rozdanie{stol: stol}
+	noweRozdanie := rozdanie{
+		stol:         stol,
+		kartyWspolne: make([]*karta, 0),
+	}
 
 	return &noweRozdanie
 }
@@ -20,28 +23,44 @@ func (r *rozdanie) rece() {
 
 func (r *rozdanie) flop() {
 	for i := 0; i < 3; i++ {
-		r.kartyWspolne[i] = r.stol.talia.pobierzOstatniaKarte()
+		r.kartyWspolne = append(r.kartyWspolne, r.stol.talia.pobierzOstatniaKarte())
 	}
 }
 
 func (r *rozdanie) turn() {
-	r.kartyWspolne[3] = r.stol.talia.pobierzOstatniaKarte()
+	r.kartyWspolne = append(r.kartyWspolne, r.stol.talia.pobierzOstatniaKarte())
 }
 
 func (r *rozdanie) river() {
-	r.kartyWspolne[4] = r.stol.talia.pobierzOstatniaKarte()
+	r.kartyWspolne = append(r.kartyWspolne, r.stol.talia.pobierzOstatniaKarte())
 }
 
 func (r *rozdanie) oddajKarty() {
 
 }
 
-func (r *rozdanie) sprawdzUklady() {
+func (r *rozdanie) sprawdzUklady(licznik map[string]int) {
+	iloscKartWspolnych := len(r.kartyWspolne)
+
 	var kombinacje3kart [][]*karta
-	kombinacje3kart = wyznaczKombinacjeKart(3, r.kartyWspolne)
+	if iloscKartWspolnych >= 4 {
+		kombinacje3kart = wyznaczKombinacjeKart(3, r.kartyWspolne)
+	} else if iloscKartWspolnych == 3 {
+		kombinacje3kart = make([][]*karta, 1)
+		kombinacje3kart[0] = r.kartyWspolne
+	} else {
+		kombinacje3kart = nil
+	}
 
 	var kombinacje4kart [][]*karta
-	kombinacje4kart = wyznaczKombinacjeKart(4, r.kartyWspolne)
+	if iloscKartWspolnych == 5 {
+		kombinacje4kart = wyznaczKombinacjeKart(4, r.kartyWspolne)
+	} else if iloscKartWspolnych == 4 {
+		kombinacje4kart = make([][]*karta, 1)
+		kombinacje4kart[0] = r.kartyWspolne
+	} else {
+		kombinacje4kart = nil
+	}
 
 	// for _, ko := range kombinacje4kart {
 	// 	for _, k := range ko {
@@ -51,7 +70,7 @@ func (r *rozdanie) sprawdzUklady() {
 	// }
 
 	for _, gracz := range r.stol.gracze {
-		najwyzszyUkladNazwa, _ := gracz.sprawdzUklady(r.stol, kombinacje3kart, kombinacje4kart)
-		r.stol.licznikUkladow[najwyzszyUkladNazwa]++
+		najwyzszyUkladNazwa := gracz.sprawdzUklady(kombinacje3kart, kombinacje4kart)
+		licznik[najwyzszyUkladNazwa]++
 	}
 }

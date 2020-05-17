@@ -16,7 +16,17 @@ func znajdzIndexFigury(figura string) int {
 	return 0
 }
 
-func wyznaczKombinacjeKart(iloscKartWKombinacji int, karty [5]*karta) [][]*karta {
+func znajdzIndexUkladu(uklad string) int {
+	for i, ukl := range ukladyKart {
+		if uklad == ukl {
+			return i
+		}
+	}
+
+	return 0
+}
+
+func wyznaczKombinacjeKart(iloscKartWKombinacji int, karty []*karta) [][]*karta {
 	result := make([][]*karta, 0)
 	tmp := make([]*karta, iloscKartWKombinacji)
 
@@ -25,7 +35,7 @@ func wyznaczKombinacjeKart(iloscKartWKombinacji int, karty [5]*karta) [][]*karta
 	return result
 }
 
-func kombinacjeKart(iloscKartWKombinacji int, karty [5]*karta, index int, tmp []*karta, result *[][]*karta, i int) {
+func kombinacjeKart(iloscKartWKombinacji int, karty []*karta, index int, tmp []*karta, result *[][]*karta, i int) {
 	if index == iloscKartWKombinacji {
 		tmpCpy := make([]*karta, len(tmp))
 		copy(tmpCpy, tmp)
