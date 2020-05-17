@@ -37,15 +37,21 @@ func (r *rozdanie) oddajKarty() {
 }
 
 func (r *rozdanie) sprawdzUklady() {
-	for _, gracz := range r.stol.gracze {
-		wszystkieKarty := zlaczKartyGracza(gracz.reka, r.kartyWspolne)
+	var kombinacje3kart [][]*karta
+	kombinacje3kart = wyznaczKombinacjeKart(3, r.kartyWspolne)
 
-		if gracz.maPokeraKrolewskiego(wszystkieKarty) {
-			r.stol.licznikUkladow["pokerKrolewski"]++
-		} else if gracz.maPokera(wszystkieKarty) {
-			r.stol.licznikUkladow["poker"]++
-		} else if gracz.maStrita(wszystkieKarty) != nil {
-			r.stol.licznikUkladow["strit"]++
-		}
+	var kombinacje4kart [][]*karta
+	kombinacje4kart = wyznaczKombinacjeKart(4, r.kartyWspolne)
+
+	// for _, ko := range kombinacje4kart {
+	// 	for _, k := range ko {
+	// 		fmt.Print(k)
+	// 	}
+	// 	fmt.Println()
+	// }
+
+	for _, gracz := range r.stol.gracze {
+		// wszystkieKarty := zlaczKartyGracza(gracz.reka, r.kartyWspolne)
+		gracz.sprawdzUklady(r.stol, kombinacje3kart, kombinacje4kart)
 	}
 }

@@ -2,22 +2,6 @@ package poker
 
 import "fmt"
 
-const iloscKartWTalii = 52
-
-var koloryKart []string = []string{"pik", "kier", "trefl", "karo"}
-var figuryKart []string = []string{"as", "król", "dama", "walet", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
-var ukladyKart []string = []string{"pokerKrolewski", "poker", "kareta", "ful", "kolor", "strit", "trojka", "dwiePary", "para", "wysokaKarta"}
-
-func znajdzIndexFigury(figura string) int {
-	for i, fgra := range figuryKart {
-		if figura == fgra {
-			return i
-		}
-	}
-
-	return 0
-}
-
 type stol struct {
 	gracze         []*gracz
 	talia          *talia
@@ -33,8 +17,8 @@ func NowyStol(iloscGraczy int) *stol {
 		gracze = append(gracze, &gracz{})
 	}
 
-	for _, uklad := range ukladyKart {
-		licznikUkladow[uklad] = 0
+	for _, ukladKart := range ukladyKart {
+		licznikUkladow[ukladKart] = 0
 	}
 
 	nowyStol := stol{

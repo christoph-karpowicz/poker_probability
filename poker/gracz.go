@@ -7,20 +7,38 @@ import (
 
 type kartyGracza []*karta
 
-func zlaczKartyGracza(reka [2]*karta, kartyWspolne [5]*karta) *kartyGracza {
-	var wszystkieKarty kartyGracza = make(kartyGracza, 0)
-	for _, krt := range kartyWspolne {
-		wszystkieKarty = append(wszystkieKarty, krt)
+func noweKartyGracza1Reka(kartaZReki *karta, kombinacjaKart []*karta) *kartyGracza {
+	var karty5 kartyGracza = make(kartyGracza, 0)
+
+	karty5 = append(karty5, kartaZReki)
+
+	for _, krt := range kombinacjaKart {
+		karty5 = append(karty5, krt)
 	}
+
+	// fmt.Println(wszystkieKarty)
+	karty5.sortujWgFigury()
+	// fmt.Println(wszystkieKarty)
+
+	return &karty5
+}
+
+func noweKartyGraczaCalaReka(reka [2]*karta, kombinacjaKart []*karta) *kartyGracza {
+	var karty5 kartyGracza = make(kartyGracza, 0)
+
 	for _, krt := range reka {
-		wszystkieKarty = append(wszystkieKarty, krt)
+		karty5 = append(karty5, krt)
+	}
+
+	for _, krt := range kombinacjaKart {
+		karty5 = append(karty5, krt)
 	}
 
 	// fmt.Println(wszystkieKarty)
-	wszystkieKarty.sortujWgFigury()
+	karty5.sortujWgFigury()
 	// fmt.Println(wszystkieKarty)
 
-	return &wszystkieKarty
+	return &karty5
 }
 
 func (kg *kartyGracza) sortujWgFigury() {
@@ -43,8 +61,8 @@ type gracz struct {
 	reka [2]*karta
 }
 
-func (g *gracz) maPokeraKrolewskiego(wszystkieKarty *kartyGracza) bool {
-	strit := g.maStrita(wszystkieKarty)
+func (g *gracz) maPokeraKrolewskiego(karty *kartyGracza) bool {
+	strit := g.maStrita(karty)
 	if strit == nil {
 		return false
 	}
@@ -60,8 +78,8 @@ func (g *gracz) maPokeraKrolewskiego(wszystkieKarty *kartyGracza) bool {
 	return true
 }
 
-func (g *gracz) maPokera(wszystkieKarty *kartyGracza) bool {
-	strit := g.maStrita(wszystkieKarty)
+func (g *gracz) maPokera(karty *kartyGracza) bool {
+	strit := g.maStrita(karty)
 	if strit == nil {
 		return false
 	}
@@ -73,17 +91,17 @@ func (g *gracz) maPokera(wszystkieKarty *kartyGracza) bool {
 	return true
 }
 
-func (g *gracz) maKarete(wszystkieKarty *kartyGracza) bool {
+func (g *gracz) maKarete(karty *kartyGracza) bool {
 
 	return true
 }
 
-func (g *gracz) maStrita(wszystkieKarty *kartyGracza) *uklad {
+func (g *gracz) maStrita(karty *kartyGracza) *uklad {
 	var strit *uklad = &uklad{}
 	var licznik int
 	var indexOstatniejKarty int
 
-	for i, krt := range *wszystkieKarty {
+	for i, krt := range *karty {
 		var indexBiezacejKarty int = znajdzIndexFigury(krt.figura)
 		// fmt.Println(indexOstatniejKarty)
 		// fmt.Println(indexBiezacejKarty)
@@ -105,4 +123,32 @@ func (g *gracz) maStrita(wszystkieKarty *kartyGracza) *uklad {
 		return strit
 	}
 	return nil
+}
+
+func (g *gracz) sprawdzUklady(stol *stol, kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) *uklad {
+	ukl := &uklad{}
+
+	ukladyGracza := make(map[string][]*uklad)
+	for _, ukladKart := range ukladyKart {
+		ukladyGracza[ukladKart] = make([]*uklad, 0)
+	}
+
+	for _, komb3 := range kombinacje3kart {
+
+		kartyZReka := noweKartyGraczaCalaReka(g.reka, komb3)
+		newUkl := uklad{}
+
+		if g.maPokeraKrolewskiego(kartyZReka) {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["pokerKrolewski"] = append(ukladyGracza["pokerKrolewski"], &newUkl)
+		} else if g.maPokera(kartyZReka) {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["poker"] = append(ukladyGracza["poker"], &newUkl)
+		} else if g.maStrita(kartyZReka) != nil {
+			newUkl = append(newUkl, (*kartyZReka)...)
+			ukladyGracza["strit"] = append(ukladyGracza["strit"], &newUkl)
+		}
+	}
+
+	return ukl
 }
