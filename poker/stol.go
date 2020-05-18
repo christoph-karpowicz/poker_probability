@@ -10,6 +10,7 @@ type stol struct {
 	gracze                    []*gracz
 	talia                     *talia
 	licznikRak                int
+	licznikRozdan             int
 	licznikUkladowPrzedFlopem map[string]int
 	licznikUkladowPoFlopie    map[string]int
 	licznikUkladowPoTurnie    map[string]int
@@ -72,8 +73,11 @@ func (s *stol) obliczPrawdopodobienstwaNaEtapie(nazwaEtapu string, iloscKart int
 		fmt.Printf("%-30s| %-34.3f|\n", ukladyKartPelneNazwy[i], prawdopodobienstwo)
 	}
 	fmt.Println(strings.Repeat("-", 67))
-	fmt.Println("Ilość kart dostępna dla jednego gracza: " + strconv.FormatInt(int64(iloscKart), 10))
-	fmt.Println("Ilość rąk: " + strconv.FormatInt(int64(s.licznikRak), 10))
+
+	fmt.Printf("%-42s: %v\n", "Ilość kart dostępna dla jednego gracza", strconv.FormatInt(int64(iloscKart), 10))
+	fmt.Printf("%-42s: %v\n", "Ilość graczy", strconv.FormatInt(int64(len(s.gracze)), 10))
+	fmt.Printf("%-42s: %v\n", "Ilość rozdań", strconv.FormatInt(int64(s.licznikRozdan), 10))
+	fmt.Printf("%-42s: %v\n", "Ilość rąk", strconv.FormatInt(int64(s.licznikRak), 10))
 }
 
 func (s *stol) rozdaj() {
@@ -94,6 +98,8 @@ func (s *stol) rozdaj() {
 	rozdanie.sprawdzUklady(s.licznikUkladowPoRiverze)
 
 	s.zbierzKarty(rozdanie)
+
+	s.licznikRozdan++
 }
 
 func (s *stol) RozdajNrazy(iloscRozdan int) {

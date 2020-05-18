@@ -4,32 +4,32 @@ type gracz struct {
 	reka [2]*karta
 }
 
-func (g *gracz) sprawdzUklady(kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) string {
+func (g *gracz) sprawdzKombinacje(kombinacje [][]*karta) []string {
 	var wszystkieUklady []string
 
-	if kombinacje3kart != nil {
-		for _, komb3 := range kombinacje3kart {
-			kartyZReka := noweKartyGraczaCalaReka(g.reka, komb3)
-			ukladNazwa := kartyZReka.szukajUkladow()
+	for _, komb := range kombinacje {
+		if len(komb) == 3 {
+			kartyZReka := noweKartyGraczaCalaReka(g.reka, komb)
+			wszystkieUklady = append(wszystkieUklady, kartyZReka.szukajUkladow())
+		} else {
+			kartyZ1KartaReki := noweKartyGracza1Reka(g.reka[0], komb)
+			wszystkieUklady = append(wszystkieUklady, kartyZ1KartaReki.szukajUkladow())
 
-			wszystkieUklady = append(wszystkieUklady, ukladNazwa)
+			kartyZ2KartaReki := noweKartyGracza1Reka(g.reka[1], komb)
+			wszystkieUklady = append(wszystkieUklady, kartyZ2KartaReki.szukajUkladow())
 		}
 	}
 
-	if kombinacje4kart != nil {
-		for _, komb4 := range kombinacje4kart {
-			kartyZ1KartaReki := noweKartyGracza1Reka(g.reka[0], komb4)
-			ukladNazwa := kartyZ1KartaReki.szukajUkladow()
+	return wszystkieUklady
+}
 
-			wszystkieUklady = append(wszystkieUklady, ukladNazwa)
-		}
-		for _, komb4 := range kombinacje4kart {
-			kartyZ2KartaReki := noweKartyGracza1Reka(g.reka[1], komb4)
-			ukladNazwa := kartyZ2KartaReki.szukajUkladow()
+func (g *gracz) sprawdzUklady(kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) string {
+	var wszystkieUklady []string
+	var wszystkieKombinacje [][]*karta = kombinacje3kart
 
-			wszystkieUklady = append(wszystkieUklady, ukladNazwa)
-		}
-	}
+	wszystkieKombinacje = append(wszystkieKombinacje, kombinacje4kart...)
+
+	wszystkieUklady = g.sprawdzKombinacje(wszystkieKombinacje)
 
 	if kombinacje3kart == nil && kombinacje4kart == nil {
 		kartyTylkoReka := noweKartyGraczaTylkoReka(g.reka)

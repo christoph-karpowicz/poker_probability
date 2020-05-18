@@ -1,5 +1,9 @@
 package poker
 
+import (
+	"sync"
+)
+
 type rozdanie struct {
 	stol         *stol
 	kartyWspolne []*karta
@@ -67,8 +71,24 @@ func (r *rozdanie) sprawdzUklady(licznik map[string]int) {
 	// 	fmt.Println()
 	// }
 
+	var wg sync.WaitGroup
+	var lock = sync.RWMutex{}
+
 	for _, gracz := range r.stol.gracze {
-		najwyzszyUkladNazwa := gracz.sprawdzUklady(kombinacje3kart, kombinacje4kart)
-		licznik[najwyzszyUkladNazwa]++
+
+		wg.Add(1)
+
+		go func(wg *sync.WaitGroup) {
+			najwyzszyUkladNazwa := gracz.sprawdzUklady(kombinacje3kart, kombinacje4kart)
+
+			lock.Lock()
+			licznik[najwyzszyUkladNazwa]++
+			lock.Unlock()
+
+			wg.Done()
+		}(&wg)
+
 	}
+
+	wg.Wait()
 }
