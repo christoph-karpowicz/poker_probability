@@ -18,6 +18,8 @@ func (r *rozdanie) rece() {
 	for _, gracz := range r.stol.gracze {
 		gracz.reka[0] = r.stol.talia.pobierzOstatniaKarte()
 		gracz.reka[1] = r.stol.talia.pobierzOstatniaKarte()
+
+		r.stol.licznikRak++
 	}
 }
 
@@ -33,10 +35,6 @@ func (r *rozdanie) turn() {
 
 func (r *rozdanie) river() {
 	r.kartyWspolne = append(r.kartyWspolne, r.stol.talia.pobierzOstatniaKarte())
-}
-
-func (r *rozdanie) oddajKarty() {
-
 }
 
 func (r *rozdanie) sprawdzUklady(licznik map[string]int) {

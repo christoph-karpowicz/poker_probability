@@ -5,6 +5,7 @@ const iloscKartWTalii = 52
 var koloryKart []string = []string{"pik", "kier", "trefl", "karo"}
 var figuryKart []string = []string{"as", "król", "dama", "walet", "10", "9", "8", "7", "6", "5", "4", "3", "2"}
 var ukladyKart []string = []string{"pokerKrolewski", "poker", "kareta", "ful", "kolor", "strit", "trojka", "dwiePary", "para", "wysokaKarta"}
+var ukladyKartPelneNazwy []string = []string{"poker królewski", "poker", "kareta", "ful", "kolor", "strit", "trójka", "dwie pary", "para", "wysoka karta"}
 
 func znajdzIndexFigury(figura string) int {
 	for i, fgra := range figuryKart {
@@ -38,8 +39,8 @@ func wyznaczKombinacjeKart(iloscKartWKombinacji int, karty []*karta) [][]*karta 
 func kombinacjeKart(iloscKartWKombinacji int, karty []*karta, index int, tmp []*karta, result *[][]*karta, i int) {
 	if index == iloscKartWKombinacji {
 		tmpCpy := make([]*karta, len(tmp))
+
 		copy(tmpCpy, tmp)
-		// fmt.Println(tmpCpy)
 		*result = append(*result, tmpCpy)
 		return
 	}

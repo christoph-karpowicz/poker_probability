@@ -1,10 +1,15 @@
 package poker
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type stol struct {
 	gracze                    []*gracz
 	talia                     *talia
+	licznikRak                int
 	licznikUkladowPrzedFlopem map[string]int
 	licznikUkladowPoFlopie    map[string]int
 	licznikUkladowPoTurnie    map[string]int
@@ -42,6 +47,35 @@ func NowyStol(iloscGraczy int) *stol {
 	return &nowyStol
 }
 
+func (s *stol) ObliczPrawdopodobienstwa() {
+	s.obliczPrawdopodobienstwaNaEtapie("przed flopem", 2, s.licznikUkladowPrzedFlopem)
+	s.obliczPrawdopodobienstwaNaEtapie("po flopie", 5, s.licznikUkladowPoFlopie)
+	s.obliczPrawdopodobienstwaNaEtapie("po turnie", 6, s.licznikUkladowPoTurnie)
+	s.obliczPrawdopodobienstwaNaEtapie("po riverze", 7, s.licznikUkladowPoRiverze)
+}
+
+func (s *stol) obliczPrawdopodobienstwaNaEtapie(nazwaEtapu string, iloscKart int, licznik map[string]int) {
+	fmt.Println()
+	fmt.Println("Prawdopodobieństwa wystąpień układów kart " + nazwaEtapu + ":")
+	fmt.Println(strings.Repeat("_", 66))
+	fmt.Printf("%-30s| %-34s|\n", "Nazwa układu", "Prawdopodobieństwo wystąpienia (%)")
+	fmt.Println(strings.Repeat("-", 67))
+
+	for i, ukl := range ukladyKart {
+		if iloscKart == 2 && i != 8 && i != 9 {
+			continue
+		}
+
+		iloscWystapien := licznik[ukl]
+		var prawdopodobienstwo float64 = (float64(iloscWystapien) / float64(s.licznikRak)) * float64(100)
+
+		fmt.Printf("%-30s| %-34.3f|\n", ukladyKartPelneNazwy[i], prawdopodobienstwo)
+	}
+	fmt.Println(strings.Repeat("-", 67))
+	fmt.Println("Ilość kart dostępna dla jednego gracza: " + strconv.FormatInt(int64(iloscKart), 10))
+	fmt.Println("Ilość rąk: " + strconv.FormatInt(int64(s.licznikRak), 10))
+}
+
 func (s *stol) rozdaj() {
 	s.talia.tasuj()
 	s.talia.przeloz()
@@ -66,11 +100,6 @@ func (s *stol) RozdajNrazy(iloscRozdan int) {
 	for i := 0; i < iloscRozdan; i++ {
 		s.rozdaj()
 	}
-
-	fmt.Println(s.licznikUkladowPrzedFlopem)
-	fmt.Println(s.licznikUkladowPoFlopie)
-	fmt.Println(s.licznikUkladowPoTurnie)
-	fmt.Println(s.licznikUkladowPoRiverze)
 }
 
 func (s *stol) zbierzKarty(roz *rozdanie) {
