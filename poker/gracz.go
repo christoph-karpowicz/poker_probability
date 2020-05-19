@@ -4,6 +4,8 @@ type gracz struct {
 	reka [2]*karta
 }
 
+// sprawdzKombinacje szuka układów we wszystkich
+// komibnacjach dostępnych w danym rozdaniu dla gracza.
 func (g *gracz) sprawdzKombinacje(kombinacje [][]*karta) []string {
 	var wszystkieUklady []string
 
@@ -23,6 +25,8 @@ func (g *gracz) sprawdzKombinacje(kombinacje [][]*karta) []string {
 	return wszystkieUklady
 }
 
+// sprawdzUklady szuka układów w ręce gracza
+// i wszystkich kombinacjach kart wspólnych na stole.
 func (g *gracz) sprawdzUklady(kombinacje3kart [][]*karta, kombinacje4kart [][]*karta) string {
 	var wszystkieUklady []string
 	var wszystkieKombinacje [][]*karta = kombinacje3kart

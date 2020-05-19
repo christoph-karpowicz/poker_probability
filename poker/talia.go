@@ -23,10 +23,12 @@ func nowaTalia() *talia {
 	return &nowaTalia
 }
 
+// odlozKarte zwraca kartę do talii.
 func (t *talia) odlozKarte(krt *karta) {
 	t.karty = append(t.karty, krt)
 }
 
+// pobierzOstatniaKarte zabiera kartę z góry talii.
 func (t *talia) pobierzOstatniaKarte() *karta {
 	karta := t.karty[len(t.karty)-1]
 	t.karty = t.karty[:len(t.karty)-1]
@@ -34,6 +36,8 @@ func (t *talia) pobierzOstatniaKarte() *karta {
 	return karta
 }
 
+// przeloz dzieli talię na pół i zamienia
+// połówki miejscami.
 func (t *talia) przeloz() {
 	iloscKartWCzesci := rand.Intn(30-20) + 20
 

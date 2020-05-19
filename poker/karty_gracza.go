@@ -7,6 +7,9 @@ import (
 
 type kartyGracza []*karta
 
+// noweKartyGracza1Reka tworzy tablicę 5 kart
+// użuwając 1 karty z reki gracza i danej kombinacji
+// 4 kart wspólnych.
 func noweKartyGracza1Reka(kartaZReki *karta, kombinacjaKart []*karta) *kartyGracza {
 	var karty5 kartyGracza = make(kartyGracza, 0)
 
@@ -21,6 +24,9 @@ func noweKartyGracza1Reka(kartaZReki *karta, kombinacjaKart []*karta) *kartyGrac
 	return &karty5
 }
 
+// noweKartyGracza1Reka tworzy tablicę 5 kart
+// użuwając reki gracza i danej kombinacji
+// 3 kart wspólnych.
 func noweKartyGraczaCalaReka(reka [2]*karta, kombinacjaKart []*karta) *kartyGracza {
 	var karty5 kartyGracza = make(kartyGracza, 0)
 
@@ -37,6 +43,8 @@ func noweKartyGraczaCalaReka(reka [2]*karta, kombinacjaKart []*karta) *kartyGrac
 	return &karty5
 }
 
+// noweKartyGraczaTylkoReka tworzy "karty gracza"
+// tylko z jego ręki.
 func noweKartyGraczaTylkoReka(reka [2]*karta) *kartyGracza {
 	var karty5 kartyGracza = make(kartyGracza, 0)
 
@@ -63,6 +71,7 @@ func (kg kartyGracza) String() string {
 	return result
 }
 
+// szukajUkladow szuka układów w 5 kartach.
 func (kg *kartyGracza) szukajUkladow() string {
 	if kg.maPokeraKrolewskiego() {
 		return "pokerKrolewski"
@@ -87,6 +96,8 @@ func (kg *kartyGracza) szukajUkladow() string {
 	}
 }
 
+// szukajUkladowTylkoWRece szuka par w 2
+// kartach.
 func (kg *kartyGracza) szukajUkladowTylkoWRece() string {
 	if kg.maPare() {
 		return "para"

@@ -17,6 +17,8 @@ type stol struct {
 	licznikUkladowPoRiverze   map[string]int
 }
 
+// NowyStol tworzy nowy stół z daną ilością
+// graczy
 func NowyStol(iloscGraczy int) *stol {
 	nowaTalia := nowaTalia()
 	gracze := make([]*gracz, 0)
@@ -48,6 +50,9 @@ func NowyStol(iloscGraczy int) *stol {
 	return &nowyStol
 }
 
+// ObliczPrawdopodobienstwa oblicza i wyświetla prawdopodobieństwa
+// układów po N rozdań na podstawie liczników z poszczególych
+// etapów gry.
 func (s *stol) ObliczPrawdopodobienstwa() {
 	s.obliczPrawdopodobienstwaNaEtapie("przed flopem", 2, s.licznikUkladowPrzedFlopem)
 	s.obliczPrawdopodobienstwaNaEtapie("po flopie", 5, s.licznikUkladowPoFlopie)
@@ -108,6 +113,8 @@ func (s *stol) RozdajNrazy(iloscRozdan int) {
 	}
 }
 
+// zbierzKarty pobiera rozdane karty
+// spowrotem do talii.
 func (s *stol) zbierzKarty(roz *rozdanie) {
 	for _, krt := range roz.kartyWspolne {
 		s.talia.odlozKarte(krt)

@@ -18,6 +18,8 @@ func noweRozdanie(stol *stol) *rozdanie {
 	return &noweRozdanie
 }
 
+// rece rozdaje po dwie karty każdemu
+// graczu.
 func (r *rozdanie) rece() {
 	for _, gracz := range r.stol.gracze {
 		gracz.reka[0] = r.stol.talia.pobierzOstatniaKarte()
@@ -41,6 +43,8 @@ func (r *rozdanie) river() {
 	r.kartyWspolne = append(r.kartyWspolne, r.stol.talia.pobierzOstatniaKarte())
 }
 
+// sprawdzUklady szuka układów we wszystkich
+// kombinacjach kart graczy i kart wspólnych.
 func (r *rozdanie) sprawdzUklady(licznik map[string]int) {
 	iloscKartWspolnych := len(r.kartyWspolne)
 
@@ -63,13 +67,6 @@ func (r *rozdanie) sprawdzUklady(licznik map[string]int) {
 	} else {
 		kombinacje4kart = nil
 	}
-
-	// for _, ko := range kombinacje4kart {
-	// 	for _, k := range ko {
-	// 		fmt.Print(k)
-	// 	}
-	// 	fmt.Println()
-	// }
 
 	var wg sync.WaitGroup
 	var lock = sync.RWMutex{}

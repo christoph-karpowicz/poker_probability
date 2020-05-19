@@ -27,21 +27,27 @@ func znajdzIndexUkladu(uklad string) int {
 	return 0
 }
 
+// wyznaczKombinacjeKart wyznacza wszystkie możliwe
+// kombinacje podanej ilości kart wspólnych znajdujących
+// się na stole.
 func wyznaczKombinacjeKart(iloscKartWKombinacji int, karty []*karta) [][]*karta {
-	result := make([][]*karta, 0)
+	wszystkieKombinacje := make([][]*karta, 0)
 	tmp := make([]*karta, iloscKartWKombinacji)
 
-	kombinacjeKart(iloscKartWKombinacji, karty, 0, tmp, &result, 0)
+	kombinacjeKart(iloscKartWKombinacji, karty, 0, tmp, &wszystkieKombinacje, 0)
 
-	return result
+	return wszystkieKombinacje
 }
 
-func kombinacjeKart(iloscKartWKombinacji int, karty []*karta, index int, tmp []*karta, result *[][]*karta, i int) {
+// kombinacjeKart rekurencyjnie dodaje kolejne
+// kombinacje zapisywane w tablicy tymczasowej
+// do przekazanej jej, tablicy wszystkich kombinacji.
+func kombinacjeKart(iloscKartWKombinacji int, karty []*karta, index int, tmp []*karta, wszystkieKombinacje *[][]*karta, i int) {
 	if index == iloscKartWKombinacji {
 		tmpCpy := make([]*karta, len(tmp))
 
 		copy(tmpCpy, tmp)
-		*result = append(*result, tmpCpy)
+		*wszystkieKombinacje = append(*wszystkieKombinacje, tmpCpy)
 		return
 	}
 
@@ -50,7 +56,7 @@ func kombinacjeKart(iloscKartWKombinacji int, karty []*karta, index int, tmp []*
 	}
 
 	tmp[index] = karty[i]
-	kombinacjeKart(iloscKartWKombinacji, karty, index+1, tmp, result, i+1)
+	kombinacjeKart(iloscKartWKombinacji, karty, index+1, tmp, wszystkieKombinacje, i+1)
 
-	kombinacjeKart(iloscKartWKombinacji, karty, index, tmp, result, i+1)
+	kombinacjeKart(iloscKartWKombinacji, karty, index, tmp, wszystkieKombinacje, i+1)
 }
